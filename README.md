@@ -405,3 +405,65 @@ MIT © [th-ch](https://github.com/th-ch/youtube-music)
 
 If `Hide Menu` option is on - you can show the menu with the <kbd>alt</kbd> key (or <kbd>\`</kbd> [backtick] if using
 the in-app-menu plugin)
+
+-----------------------------------------------------------------------------------------------------------------------------------
+Instructions to build a custom app launcher:
+
+1. Generate the launcher
+
+Run these commands from the root of the repo:
+
+# Path where you cloned this repo
+APP_DIR="$HOME/youtube-music"
+
+# Generate desktop entry from template
+sed "s|@APP_DIR@|$APP_DIR|g" packaging/linux/youtube-music.desktop.in > ~/.local/share/applications/YoutubeMusic.desktop
+
+# Make it launchable
+chmod +x ~/.local/share/applications/YoutubeMusic.desktop
+
+# Refresh desktop database
+update-desktop-database ~/.local/share/applications
+
+2. Find it in your menu
+
+Open your app menu and search for YouTube Music.
+You can right-click → Add to Panel or Add to Desktop.
+
+3. What the launcher does
+
+Starts the app in production mode:
+
+NODE_ENV=production ELECTRON_IS_DEV=0 pnpm start
+
+This prevents the Developer Tools from opening automatically.
+
+Ensures the working directory is correct (Path=@APP_DIR@).
+
+Uses StartupWMClass=com.github.th_ch.youtube_music so the app window is pinned to the launcher icon (no duplicate icons).
+
+4. Optional: Use a prod start script
+
+For convenience, you can add this to your package.json:
+
+"scripts": {
+  "start:prod": "cross-env NODE_ENV=production ELECTRON_IS_DEV=0 electron-vite preview"
+}
+
+Then update the .desktop file to:
+
+Exec=/usr/bin/env bash -lc 'cd "@APP_DIR@" && pnpm start:prod'
+
+5. (Advanced) Run the built app
+
+If you prefer not to run the dev/preview server, you can instead build and run the compiled app:
+
+cd "$APP_DIR"
+pnpm build
+pnpm exec electron ./dist/main/index.js
+
+To make the launcher use this, update Exec= in the .desktop file to:
+
+Exec=/usr/bin/env bash -lc 'cd "@APP_DIR@" && pnpm build && pnpm exec electron ./dist/main/index.js'
+
+With this setup, YouTube Music will behave like a native Linux app: pinned icon, proper name in your menu, and no unwanted DevTools window.
