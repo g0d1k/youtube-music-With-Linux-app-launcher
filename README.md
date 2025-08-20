@@ -466,4 +466,7 @@ To make the launcher use this, update Exec= in the .desktop file to:
 
 Exec=/usr/bin/env bash -lc 'cd "@APP_DIR@" && pnpm build && pnpm exec electron ./dist/main/index.js'
 
+Validate the launcher:
+desktop-file-validate ~/.local/share/applications/YoutubeMusic.desktop
+
 With this setup, YouTube Music will behave like a native Linux app: pinned icon, proper name in your menu, and no unwanted DevTools window.
